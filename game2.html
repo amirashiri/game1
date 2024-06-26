@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phonetic Number System Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        input, button {
+            font-size: 16px;
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        #wordOptions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .word-option {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 10px;
+            cursor: pointer;
+        }
+        #story {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Phonetic Number System Game</h1>
+    <input type="text" id="digitsInput" placeholder="Enter a series of digits">
+    <button onclick="startGame()">Start Game</button>
+    <div id="wordOptions"></div>
+    <button id="nextGroup" onclick="showNextGroup()" style="display:none;">Show Next Group</button>
+    <div id="story"></div>
+
+    <script>
+        const phoneticSystem = {
+            0: ['s', 'z'],
+            1: ['t', 'd'],
+            2: ['n'],
+            3: ['m'],
+            4: ['r'],
+            5: ['l'],
+            6: ['j', 'ch', 'sh'],
+            7: ['k', 'g'],
+            8: ['f', 'v'],
+            9: ['p', 'b']
+        };
+
+        let digits = '';
+        let currentWords = [];
+        let selectedWords = [];
+        let maxLength = 0;
+
+        function startGame() {
+            digits = document.getElementById('digitsInput').value.replace(/\D/g, '');
+            if (digits.length === 0) {
+                alert('Please enter some digits.');
+                return;
+            }
+            generateWords(digits);
+            maxLength = Math.min(digits.length, 5);  // Limit max word length to 5
+            showWordOptions();
+            document.getElementById('nextGroup').style.display = 'block';
+        }
+
+        function generateWords(digits) {
+            // This is a simplified word generation.
+            // In a real implementation, you'd use a dictionary and more sophisticated logic.
+            currentWords = digits.split('').map(d => phoneticSystem[d][0]);
+        }
+
+        function showWordOptions() {
+            const optionsDiv = document.getElementById('wordOptions');
+            optionsDiv.innerHTML = '';
+            for (let i = 0; i < currentWords.length - maxLength + 1; i++) {
+                const word = currentWords.slice(i, i + maxLength).join('');
+                const wordDiv = document.createElement('div');
+                wordDiv.className = 'word-option';
+                wordDiv.textContent = word;
+                wordDiv.onclick = () => selectWord(word);
+                optionsDiv.appendChild(wordDiv);
+            }
+            document.getElementById('nextGroup').disabled = (maxLength === 1);
+        }
+
+        function showNextGroup() {
+            maxLength--;
+            showWordOptions();
+        }
+
+        function selectWord(word) {
+            selectedWords.push(word);
+            const remainingDigits = digits.slice(word.length);
+            if (remainingDigits.length > 0) {
+                digits = remainingDigits;
+                generateWords(digits);
+                maxLength = Math.min(digits.length, 5);
+                showWordOptions();
+            } else {
+                finishGame();
+            }
+        }
+
+        function finishGame() {
+            document.getElementById('wordOptions').innerHTML = '';
+            document.getElementById('nextGroup').style.display = 'none';
+            document.getElementById('story').textContent = 'Your story: ' + selectedWords.join(' ');
+        }
+    </script>
+</body>
+</html>
